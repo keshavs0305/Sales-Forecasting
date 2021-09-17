@@ -1,0 +1,12 @@
+The main columns are:
+- Customer name
+- Order nº
+- Item name
+- Quantity
+
+Each order nº is one order for the corresponding customer. Each order have different items in different quantities.
+
+I need a model to predict for each customer:
+- when they will put a order
+- which items will be on the order
+- how many quantities of each item will be on the order
