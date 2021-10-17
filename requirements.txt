@@ -1,0 +1,8 @@
+keras
+tensorflow
+xgboost
+pandas
+numpy
+sklearn
+matplotlib
+openpyxl
