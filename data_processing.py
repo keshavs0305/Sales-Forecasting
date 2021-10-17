@@ -8,15 +8,15 @@ df = pd.read_csv(folder_path + "\df.csv")
 
 def time_series_bin(right, col):
     ret = pd.DataFrame(pd.date_range(df['Order date'].min(), df['Order date'].max(), freq='d'), columns=['Date'])
-    try:
-        new_data = pd.merge(ret, right, left_on='Date', right_on=col, how='outer')
-        print(len(new_data),'new data')
-    except:
-        new_data = pd.concat([ret, right], axis=1, join="outer")
-        print(len(new_data), 'new data except')
-    new_data['ret'] = new_data[col].isna() == 0
-    new_data['ret'].replace({True: 1, False: 0}, inplace=True)
-    return new_data['ret']
+    ret['Date'] = pd.to_datetime(ret['Date']).dt.date
+    ret['Date'] = ret.Date.astype('str')
+    ret['val'] = [0 for _ in range(len(ret))]
+    for i in ret.Date:
+        if i in right[col].values:
+            ret.loc[ret.Date == i, 'val'] = 1
+        else:
+            ret.loc[ret.Date == i, 'val'] = 0
+    return ret['val']
 
 
 def recency(dfr, cusid):

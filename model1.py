@@ -3,6 +3,9 @@ from sklearn.preprocessing import StandardScaler
 from customer_data import data_cus, new_data
 import numpy as np
 import xgboost as xgb
+import datetime
+import warnings
+warnings.filterwarnings("ignore")
 
 folder_path = "..\Sales-Forecasting\csv_files"
 df = pd.read_csv(folder_path + "\df.csv")
@@ -25,15 +28,17 @@ def preds(cusid):
     # plt.show()\n",
 
     model = xgb.XGBRegressor().fit(data[:, :-1], data[:, -1])
-    data, n = data_cus(df, df2, cusid)
-    pred = model.predict(scale.transform(data)[-1][:-1].reshape(1, -1))
+    #data, n = data_cus(df, df2, cusid)
+    x = scale.transform(np.array(new_data(cusid)).reshape(1, -1))
+    pred = model.predict(x[:,:-1])
 
-    r3 = scale.inverse_transform([0 for _ in range(12)] + [pred[0]])[-1]
+    r3 = scale.inverse_transform(np.array([0 for _ in range(12)] + [pred[0]]).reshape(1,-1))[-1]
 
-    return r3
+    return int(r3[-1])
 
 
 pred = {'cusid': [], 'pred': []}
+c=0
 for id_ in df['Custumer Id'].unique():
     if id_ in [903]:
         pred['cusid'].append(id_)
@@ -41,5 +46,9 @@ for id_ in df['Custumer Id'].unique():
         continue
     pred['cusid'].append(id_)
     pred['pred'].append(preds(id_))
+    print(preds(id_), id_)
+    c += 1
+    if c == 10:
+        break
 
-pd.DataFrame(pred).to_csv('csv_files/sample.csv', index=False)
+#pd.DataFrame(pred).to_csv('csv_files/preds_' + str(datetime.date.today()) + '.csv', index=False)
