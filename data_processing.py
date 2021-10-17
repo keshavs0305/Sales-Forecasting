@@ -39,7 +39,7 @@ def buy_freq(dfr, cusid):
     return ret
 
 
-def price_inc_30(df1, df2):
+def price_inc_n(df1, df2, n):
     df2 = pd.concat(
         [df2[['Date of price increase']],
          pd.DataFrame.sparse.from_spmatrix(
@@ -51,14 +51,25 @@ def price_inc_30(df1, df2):
     x = pd.concat([x, df2], axis=0)
 
     x.fillna(0, inplace=True)
-    x.index = pd.to_datetime(x.index,)
+    x.index = pd.to_datetime(x.index)
     x = x[~x.index.duplicated(keep='last')]
     x.sort_index(inplace=True)
+
+    for col in x.columns:
+        x[col] = check_next_n(x, col, n)
 
     return x
 
 
-def check_next_n(dfp, n):
+def check_next_n(dff, col, n):
+    ar = [0 for _ in range(len(dff))]
+    x = np.where(dff[col] == 1)[0]
+    for i in range(len(x)):
+        ar[x[i]-n:x[i]] = [1 for _ in range(n)]
+    return ar
+
+
+def check_next_n1(dfp, n):
     for col in dfp.columns:
         x = np.where(dfp[col].to_numpy() == 1)[0]
         ar = [0 for _ in range(x[0] - n)]
